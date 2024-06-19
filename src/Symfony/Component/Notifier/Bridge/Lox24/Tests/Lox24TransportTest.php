@@ -10,6 +10,7 @@
  */
 
 use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\Notifier\Bridge\Lox24\Lox24Options;
 use Symfony\Component\Notifier\Bridge\Lox24\Lox24Transport;
@@ -49,8 +50,7 @@ class Lox24TransportTest extends TransportTestCase
 
     public static function createTransport(?HttpClientInterface $client = null): Lox24Transport
     {
-        return (new Lox24Transport('user', 'token', 'sender', ['type' => 'voice'], $client ?? new MockHttpClient()
-        ))->setHost('host.test');
+        return (new Lox24Transport('user', 'token', 'sender', ['type' => 'voice'], $client ?? new MockHttpClient()))->setHost('host.test');
     }
 
     public static function toStringProvider(): iterable
@@ -309,12 +309,12 @@ class Lox24TransportTest extends TransportTestCase
             $responseStatus,
             $responseContent
         ): MockResponse {
-            $this->assertEquals('POST', $method);
-            $this->assertEquals('https://api.lox24.eu/sms', $url);
+            $this->assertSame('POST', $method);
+            $this->assertSame('https://api.lox24.eu/sms', $url);
             $this->assertHeaders($headers, $options['headers']);
             $this->assertJsonStringEqualsJsonString($body, $options['body']);
 
-            return new MockResponse(json_encode($responseContent), [
+            return new JsonMockResponse($responseContent, [
                 'http_code' => $responseStatus,
                 'headers' => ['content-type' => 'application/json'],
             ]);
